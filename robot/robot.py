@@ -66,14 +66,22 @@ class MyRobot(wpilib.TimedRobot):
         quick_turn = False
         # We make the turn value here.
         turn_value = xbone_controller.getX(left)
+        # The scale factor here.
+        scale_factor = 1 / 3
         if xbone_controller.getAButton():
             quick_turn = not quick_turn
-            # If the A button is pressed, give 1/3 of the steering power to avoid overloading the robot.
-            turn_value = turn_value * 1 / 3
+            # If the A button is pressed, give scaling factor of the steering power to avoid overloading the robot.
+            turn_value = turn_value * scale_factor
 
+        # Allow for full power to the robot systems with the X button.
+        full_power = False
+        if xbone_controller.getXButton():
+            # Essentially same system as the quick turn.
+            full_power = not full_power
+            scale_factor = 1
         # We use curvature drive, with the upper helper function for the Xbox controller,
         # and turn with the left hand joystick.
-        self.drive.curvatureDrive(scale_input_xbone_triggers(0, 1 / 3), turn_value, quick_turn)
+        self.drive.curvatureDrive(scale_input_xbone_triggers(0, scale_factor), turn_value, quick_turn)
 
 
 if __name__ == "__main__":
