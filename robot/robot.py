@@ -3,7 +3,6 @@ Code to drive the team 8330 robot.
 """
 
 # Imports
-import math
 import wpilib
 import wpilib.drive
 import wpilib.interfaces
@@ -28,10 +27,10 @@ def scale_input_xbone_triggers(port: int, factor: float) -> float:
     # If the triggers' total is less than zero, we need to take the square root of it,
     # then multiply it by the factor, and then negate it.
     if trigger_value < 0:
-        return_value = -math.sqrt(abs(trigger_value) * factor)
+        return_value = -abs(trigger_value) * factor
     # Otherwise, just assign the sqrt times the factor.
     else:
-        return_value = math.sqrt(abs(trigger_value) * factor)
+        return_value = abs(trigger_value) * factor
     return return_value
 
 
@@ -65,12 +64,16 @@ class MyRobot(wpilib.TimedRobot):
         # as the teleopPeriodic function is run constantly during robot operation,
         # we just check for the A button press, and then negate the value.
         quick_turn = False
+        # We make the turn value here.
+        turn_value = xbone_controller.getX(left)
         if xbone_controller.getAButton():
             quick_turn = not quick_turn
+            # If the A button is pressed, give 1/3 of the steering power to avoid overloading the robot.
+            turn_value = turn_value * 1 / 3
 
         # We use curvature drive, with the upper helper function for the Xbox controller,
         # and turn with the left hand joystick.
-        self.drive.curvatureDrive(scale_input_xbone_triggers(0, 1 / 3), xbone_controller.getX(left) * 1/3, quick_turn)
+        self.drive.curvatureDrive(scale_input_xbone_triggers(0, 1 / 3), turn_value, quick_turn)
 
 
 if __name__ == "__main__":
