@@ -70,7 +70,7 @@ class MyRobot(wpilib.TimedRobot):
 
         # We use curvature drive, with the upper helper function for the Xbox controller,
         # and turn with the left hand joystick.
-        self.drive.curvatureDrive(scale_input_xbone_triggers(0, 1 / 3), xbone_controller.getX(left), quick_turn)
+        self.drive.curvatureDrive(scale_input_xbone_triggers(0, 1 / 3), xbone_controller.getX(left) * 1/3, quick_turn)
 
 
 if __name__ == "__main__":
