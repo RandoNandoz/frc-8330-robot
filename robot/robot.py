@@ -1,5 +1,9 @@
 """
 Code to drive the team 8330 robot.
+
+Essentially, right trigger forwards, left backwards.
+Left stick steers.
+A button allow the robot to spin in place. X allows for full power.
 """
 
 # Imports
@@ -10,8 +14,9 @@ import wpilib.interfaces
 
 def scale_input_xbone_triggers(port: int, factor: float) -> float:
     """
-    Function to scale the input from the Xbox One controller's triggers. Right bumper returns a positive
-    value from 0 to 1, back bumper returns a negative from 0 to 1. Both triggers negate another.
+    Function to scale the input from the Xbox One controller's triggers. Right trigger returns a positive
+    value from 0 to 1, left trigger returns values from -1 to 0. Currently, the system works linearly.
+
     :param port: The port the Xbox controller is on.
     :param factor: The factor to scale the power by.
     :return: Returns a value from 0 to 1, from the inputs of the right and left bumpers.
@@ -36,8 +41,20 @@ def scale_input_xbone_triggers(port: int, factor: float) -> float:
 
 # noinspection PyAttributeOutsideInit
 class MyRobot(wpilib.TimedRobot):
+    """
+    This is the main code for the robot. It has robotInit(), which runs on robot start, and it just simply does these:
 
-    # This function runs on robot initialization - like the name says.s
+    1. Initialize the motors on PWM pins 0 to 3. These are used to drive the robot forwards and backwards.
+    2. Make the speed groups, as the robot is driven with a pair of gearboxes, both connected to 2 motors each.
+    3. Create the drive class from the two speed controller groups.
+
+    teleopPeriodic() does different things however.
+    It runs constantly when the robot is running and just checks for the
+    Xbox controller's left stick movement, checks for the A and X button presses,
+    and turns the robot, and changes functionality.
+    """
+
+    # This function runs on robot initialization - like the name says.
     def robotInit(self) -> None:
         # Create the motors, on pins 0 to 4.
         self.right_motor_back = wpilib.PWMVictorSPX(0)
@@ -59,7 +76,7 @@ class MyRobot(wpilib.TimedRobot):
         # Assign left a value.
         left = wpilib.interfaces.GenericHID.Hand.kLeftHand
 
-        # Quick turn logic, essentially, when the "a" button is pressed, we allow the robot to quickly turn on it's
+        # Quick turn logic, essentially, when the A button is pressed, we allow the robot to quickly turn on it's
         # X axis. Start with quick_turn on False,
         # as the teleopPeriodic function is run constantly during robot operation,
         # we just check for the A button press, and then negate the value.
@@ -74,10 +91,8 @@ class MyRobot(wpilib.TimedRobot):
             turn_value = turn_value * scale_factor
 
         # Allow for full power to the robot systems with the X button.
-        full_power = False
         if xbone_controller.getXButton():
             # Essentially same system as the quick turn.
-            full_power = not full_power
             scale_factor = 1
         # We use curvature drive, with the upper helper function for the Xbox controller,
         # and turn with the left hand joystick.
