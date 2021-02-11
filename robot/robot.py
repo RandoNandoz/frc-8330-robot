@@ -8,22 +8,20 @@ import wpilib.drive
 import wpilib.interfaces
 
 
-def scale_input_xbone_triggers(port: int, factor: float) -> float:
+def scale_input_xbone_triggers(controller: wpilib.XboxController, factor: float) -> float:
     """
     Function to scale the input from the Xbox One controller's triggers. Right bumper returns a positive
     value from 0 to 1, back bumper returns a negative from 0 to 1. Both triggers negate another.
-    :param port: The port the Xbox controller is on.
+    :param controller: The Xbox controller object.
     :param factor: The factor to scale the power by.
     :return: Returns a value from 0 to 1, from the inputs of the right and left bumpers.
     """
 
-    # Create the Xbox controller.
-    xbone_controller = wpilib.XboxController(port)
     # Define the left and right hands.
     left_hand = wpilib.interfaces.GenericHID.Hand.kLeftHand
     right_hand = wpilib.interfaces.GenericHID.Hand.kRightHand
     # The trigger value is the right bumpers value minus the left's.
-    trigger_value = xbone_controller.getTriggerAxis(right_hand) - (xbone_controller.getTriggerAxis(left_hand))
+    trigger_value = controller.getTriggerAxis(right_hand) - (controller.getTriggerAxis(left_hand))
     # If the triggers' total is less than zero, we need to take the square root of it,
     # then multiply it by the factor, and then negate it.
     if trigger_value < 0:
@@ -32,6 +30,14 @@ def scale_input_xbone_triggers(port: int, factor: float) -> float:
     else:
         return_value = abs(trigger_value) * factor
     return return_value
+
+
+def vib_xbone_to_scale(controller: wpilib.XboxController, val: float):
+    """ Vibrate the controller from values -1 to 1."""
+    if val < 0:
+        controller.setRumble(wpilib.interfaces.GenericHID.RumbleType.kLeftRumble, abs(val))
+    else:
+        controller.setRumble(wpilib.interfaces.GenericHID.RumbleType.kRightRumble, abs(val))
 
 
 # noinspection PyAttributeOutsideInit
@@ -81,7 +87,9 @@ class MyRobot(wpilib.TimedRobot):
             scale_factor = 1
         # We use curvature drive, with the upper helper function for the Xbox controller,
         # and turn with the left hand joystick.
-        self.drive.curvatureDrive(scale_input_xbone_triggers(0, scale_factor), turn_value, quick_turn)
+        self.drive.curvatureDrive(scale_input_xbone_triggers(xbone_controller, scale_factor), turn_value,
+                                  quick_turn)
+        vib_xbone_to_scale(xbone_controller, scale_input_xbone_triggers(xbone_controller, 1))
 
 
 if __name__ == "__main__":
