@@ -104,7 +104,7 @@ class MyRobot(wpilib.TimedRobot):
         # and turn with the left hand joystick.
         self.drive.curvatureDrive(scale_input_xbone_triggers(xbone_controller, scale_factor), turn_value,
                                   quick_turn)
-        vib_xbone_to_scale(xbone_controller, scale_input_xbone_triggers(xbone_controller, 1))
+        # vib_xbone_to_scale(xbone_controller, scale_input_xbone_triggers(xbone_controller, 1))
 
 
 if __name__ == "__main__":
