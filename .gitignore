@@ -4,6 +4,7 @@ __pycache__/
 .pytest*/
 .coverage
 .mypy_cache/
+/venv
 
 # C extensions
 *.so
