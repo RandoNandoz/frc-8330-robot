@@ -62,7 +62,7 @@ class MyRobot(wpilib.TimedRobot):
 
     # This function runs on robot initialization - like the name says.
     def robotInit(self) -> None:
-        # Create the motors, on pins 0 to 4.
+        # Create the motors, on pins 0 -to 4.
         self.right_motor_back = wpilib.PWMVictorSPX(0)
         self.right_motor_front = wpilib.PWMVictorSPX(1)
         self.left_motor_front = wpilib.PWMVictorSPX(2)
@@ -74,6 +74,8 @@ class MyRobot(wpilib.TimedRobot):
 
         # Differential drive from the two speed controllers.
         self.drive = wpilib.drive.DifferentialDrive(self.left_speed_group, self.right_speed_group)
+
+        wpilib.CameraServer.launch("vision.py:main")
 
     # The teleopPeriodic function runs when the robot is running.
     def teleopPeriodic(self) -> None:
@@ -105,6 +107,8 @@ class MyRobot(wpilib.TimedRobot):
         self.drive.curvatureDrive(scale_input_xbone_triggers(xbone_controller, scale_factor), turn_value,
                                   quick_turn)
         # vib_xbone_to_scale(xbone_controller, scale_input_xbone_triggers(xbone_controller, 1))
+
+    # def autonomousInit(self) -> None:
 
 
 if __name__ == "__main__":
